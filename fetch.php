@@ -1,15 +1,19 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+
 <?php
+
+$postfix = $_GET["postfix"];
 
 function ends_With( $haystack, $needle ) {
     $length = strlen( $needle );
     if( !$length ) {
         return true;
     }
+    $haystack = strtolower($haystack);
+    $needle = strtolower($needle);
     return substr( $haystack, -$length ) === $needle;
-}
-
-function endsWith($user) {
-    return ends_With($user->username, "Huguet");
 }
 
 function simplify($user) {
@@ -27,11 +31,14 @@ $json = file_get_contents($url);
 // Converts it into a PHP object
 $data = json_decode($json);
 
-$queried = array_filter($data, "endsWith");
+$queried = array_filter($data, function ($user) use($postfix) {
+	return ends_With($user->username, $postfix);
+});
 $mapped = array_map("simplify", $queried);
-
 ?>
 
-<pre>
-<?php print_r($mapped); ?>
-</pre>
+</head>
+<body>
+<?php echo json_encode($mapped); ?>
+</body>
+</html>
