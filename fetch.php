@@ -111,6 +111,30 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
             </div>
         </div>
 
+        <h2>Objectius i recompenses</h2>    
+        <div class="milestones-container" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center;">
+            <div class="milestone-desc">
+                <h4>10 hores gravades: Objectiu inicial</h4>    
+                <p>Amb 50 persones gravant 70 frases ja ho tenim. Mode fàcil.</p>
+            </div>
+            <div class="milestone-desc noactiu">
+                <h4>20 hores gravades: Biblioteca 24h</h4>    
+                <img src="./bibliotecanocturna.png"/>
+                <p>Comencen les recompenses. Si aconseguim 20 hores gravades, transformem la 3A actual en una biblioteca 24h oberta a la setmana durant les setmanes de finals. L'aforament serà limitat però en principi es podria portar gent de fora; assegurant màxim silenci.</p>
+            </div>
+            <div class="milestone-desc noactiu">
+                <h4>50 hores gravades: WIFI</h4>    
+                <img src="./wifi.jpeg"/>
+                <p>Amb 50 persones gravant 300 frases, podríem tenir WIFI a la 3A. Cuidado.</p>
+            </div>
+            <div class="milestone-desc noactiu">
+                <h4>100 hores gravades: Piscina</h4>    
+                <img src="./piscina.jpg"/>
+                <p>Amb 100 persones gravant 300 frases, tindríem una recompensa llegendària: piscina a la nova 3A. La imatge és real. És la piscina que l'associació que estava abans al nou lloc va instal·lar. Hi cap.</p>
+            </div>
+        </div>
+
+        <h2>Aportació de cada membre</h2>
         <div class="chart-container" style="width:90%; height: 600px;">
             <canvas id="histogram"></canvas>
         </div>

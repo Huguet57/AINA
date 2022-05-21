@@ -1,1 +1,59 @@
-/var/www/html/aina/style.css
+.milestone {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 143%;
+    border: solid 2px black;
+    bottom: 20px;
+    right: 25px;
+    text-align: center;
+    line-height: 18px;
+    background-color: white;
+}
+
+.milestone .hores {
+    top: 10px;
+    position: relative;
+}
+
+.milestone .frases {
+    top: 6px;
+    position: relative;
+    font-size: 10px;
+}
+
+#hours {
+    position: relative;
+    right: 30px;
+    color: white;
+    font-weight: bold;
+}
+
+.full-container {
+    padding: 25px;
+}
+
+.milestone-desc {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 1;
+
+    width: 500px;
+    border: solid 2px black;
+    border-radius: 10px;
+    padding: 25px;
+    margin: 20px;
+}
+
+.milestone-desc.noactiu {
+    opacity: 0.5;
+}
+
+.milestone-desc img {
+    width: 80%;
+    display:block;
+    margin:auto;
+    margin-bottom: 25px;
+    margin-top: 10px;
+}
