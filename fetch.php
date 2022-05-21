@@ -123,17 +123,17 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
             <div class="milestone-desc noactiu">
                 <h4>20 hores gravades: Biblioteca 24h</h4>    
                 <img src="./bibliotecanocturna.png"/>
-                <p>Comencen les recompenses. Si aconseguim 20 hores gravades, transformem la 3A actual en una biblioteca 24h oberta a la setmana durant les setmanes de finals. L'aforament serà limitat però en principi es podria portar gent de fora; assegurant màxim silenci.</p>
+                <p>Transformem la 3A actual en una biblioteca nocturna a la setmana de finals. Amics també poden venir.</p>
             </div>
             <div class="milestone-desc noactiu">
                 <h4>50 hores gravades: WIFI</h4>    
                 <img src="./wifi.jpeg"/>
-                <p>Amb 50 persones gravant 300 frases, podríem tenir per fi Wi-Fi a la 3A. Cuidado.</p>
+                <p>Amb 50 persones gravant 300 frases, podríem tenir Wi-Fi a la 3A. Cuidado.</p>
             </div>
             <div class="milestone-desc noactiu">
                 <h4>100 hores gravades: Piscina</h4>    
                 <img src="./piscina.jpg"/>
-                <p>Amb 100 persones gravant 300 frases, tindríem una recompensa llegendària: piscina a la nova 3A. La imatge és real. És la piscina que l'associació que estava abans al nou lloc va instal·lar. Hi cap.</p>
+                <p>Amb 100 persones gravant 300 frases, tindríem una recompensa llegendària: piscina a la nova 3A.<br /><br /> La imatge no és cap montatge. Ja ha passat abans.</p>
             </div>
         </div>
 
