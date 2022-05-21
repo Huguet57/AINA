@@ -2,7 +2,14 @@
 <head>
 <meta charset="UTF-8">
 
+<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
 <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js'></script>
+
+<link href="./style.css" rel="stylesheet" />
 
 <?php
 
@@ -56,6 +63,10 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
         return user.clips;
     });
 
+    let minutes = clips.map(function (number) {
+        return Math.round(number*10/60);
+    });
+
     let entropy = clips.map(function (clips) {
         let p = clips/total;
         if (p == 0) return suma;
@@ -79,9 +90,26 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
 
 </head>
 <body>
-    <h2>Total: <span id="total"></span> frases</h2>
+    <div class="full-container">
+        <h1>Arreplegats de la Zona Universitària (@AZU)</h1>
+        <h2>Total gravat: <strong id="total"></strong> frases</h2>
+        <br />
 
-    <div class="chart-container" style="position: relative; height:500px; width:800px">
+        <div class="progress-container" style="display:flex;">
+            <div style="width: 90%;">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" style="height: 50px; width: <?php echo $reduced*10/3600/10*100; ?>%" aria-valuenow="<?php echo $reduced*10/3600/10*100; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div id="hours"></div>
+                </div>
+            </div>
+            <div class="milestone">
+                <div class="hores">10h</div>
+                <div class="frases">3600</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-container" style="margin-left: 25px; height:500px; width:90%">
         <canvas id="histogram"></canvas>
     </div>
 
@@ -94,8 +122,8 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
                 labels: usernames,
                 datasets: [{
                     label: 'Minuts posats per cada membre',
-                    data: clips,
-                    backgroundColor: 'green',
+                    data: minutes,
+                    backgroundColor: 'darkgreen',
                 }]
             },
             options: {
@@ -111,7 +139,9 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
 
         // Totals
         let h2 = document.getElementById("total");
-        h2.outerHTML = total;
+        h2.innerHTML = total;
+        let hours = document.getElementById("hours");
+        hours.innerHTML = String(Math.round(total*10/60/60*10)/10) + "h";
     </script>
 </body>
 </html>
