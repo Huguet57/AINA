@@ -111,6 +111,9 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
             </div>
         </div>
 
+        <center><a style="color: #198754;" href="https://commonvoice.mozilla.org/ca"><h2>Ves a donar la teva veu</h2></a></center>
+        <br />
+
         <h2>Objectius i recompenses</h2>    
         <div class="milestones-container" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center;">
             <div class="milestone-desc">
@@ -125,7 +128,7 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
             <div class="milestone-desc noactiu">
                 <h4>50 hores gravades: WIFI</h4>    
                 <img src="./wifi.jpeg"/>
-                <p>Amb 50 persones gravant 300 frases, podríem tenir WIFI a la 3A. Cuidado.</p>
+                <p>Amb 50 persones gravant 300 frases, podríem tenir per fi Wi-Fi a la 3A. Cuidado.</p>
             </div>
             <div class="milestone-desc noactiu">
                 <h4>100 hores gravades: Piscina</h4>    
