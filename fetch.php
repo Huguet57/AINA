@@ -110,33 +110,35 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
                 <div class="frases">3600</div>
             </div>
         </div>
-    </div>
 
-    <div class="chart-container" style="margin-left: 25px; height:500px; width:90%">
-        <canvas id="histogram"></canvas>
+        <div class="chart-container" style="width:90%; height: 600px;">
+            <canvas id="histogram"></canvas>
+        </div>
     </div>
 
     <script>
         // Histogram
         const ctx = document.getElementById('histogram').getContext('2d');
         const chart = new Chart(ctx, {
-            type: 'bar',
+            type: 'horizontalBar',
             data: {
                 labels: usernames,
                 datasets: [{
                     label: 'Minuts posats per cada membre',
                     data: minutes,
-                    backgroundColor: 'darkgreen',
+                    backgroundColor: '#198754',
                 }]
             },
             options: {
                 scales: {
-                    yAxes: [{
+                    xAxes: [{
+                        position: "top",
                         ticks: {
-                        beginAtZero: true
+                            beginAtZero: true
                         }
                     }]
-                }
+                },
+                maintainAspectRatio: false,
             }
         });
 
