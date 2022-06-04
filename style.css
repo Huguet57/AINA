@@ -50,6 +50,10 @@
     opacity: 0.5;
 }
 
+.milestone-desc.assolit {
+    border: solid 2px orange;
+}
+
 .milestone-desc img {
     width: 80%;
     display:block;
