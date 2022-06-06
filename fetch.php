@@ -101,13 +101,13 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
         <div class="progress-container" style="display:flex;">
             <div style="width: 90%;">
                 <div class="progress">
-                    <div class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" style="height: 50px; width: <?php echo $reduced*10/3600/10*100 - 100; ?>%" aria-valuenow="<?php echo $reduced*10/3600/10*100 - 100; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" style="height: 50px; width: <?php echo $reduced*10/3600/50*100; ?>%" aria-valuenow="<?php echo $reduced*10/3600/50*100; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                     <div id="hours"></div>
                 </div>
             </div>
             <div class="milestone">
-                <div class="hores">20h</div>
-                <div class="frases">7200</div>
+                <div class="hores">50h</div>
+                <div class="frases">18000</div>
             </div>
         </div>
 
@@ -116,17 +116,20 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
 
         <h2>Objectius i recompenses</h2>    
         <div class="milestones-container" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center;">
-            <div class="milestone-desc assolit noactiu" style="border: solid 2px orange; color:orange;">
-                <del>
+            <div class="milestone-desc assolit noactiu">
+                <del style="color:orange;">
                     <h4>10 hores gravades: Objectiu inicial</h4>    
                     <p>Amb 50 persones gravant 70 frases ja ho tenim. Mode fàcil.</p>
                 </del>
-                <div>Assolit al 03/06/2022</div>
+                <pre>Assolit al 03/06/2022</pre>
             </div>
-            <div class="milestone-desc">
-                <h4>20 hores gravades: Biblioteca 24h</h4>    
-                <img src="./bibliotecanocturna.png"/>
-                <p>Transformem la 3A actual en una biblioteca nocturna a la setmana de finals. Amics també poden venir.</p>
+            <div class="milestone-desc assolit noactiu">
+                <del style="color:orange;">
+                    <h4>20 hores gravades: Biblioteca 24h</h4>    
+                    <img src="./bibliotecanocturna.png"/>
+                    <p>Transformem la 3A actual en una biblioteca nocturna a la setmana de finals. Amics també poden venir.</p>
+                </del>
+                <pre>Assolit al 06/06/2022</pre>
             </div>
             <div class="milestone-desc noactiu">
                 <h4>50 hores gravades: WIFI</h4>    
