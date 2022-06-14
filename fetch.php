@@ -69,7 +69,15 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-$usernames = array_map(function ($user) { return $user->username; }, $mapped);
+uasort($mapped, function ($a, $b) use ($username_votes) {
+    $a_not_validations = !array_key_exists($a->username, $username_votes) || $a->clips < 300;
+    $b_not_validations = !array_key_exists($b->username, $username_votes) || $b->clips < 300;
+
+    if ($a_not_validations && $b_not_validations) return $a->clips < $b->clips;
+    else if ($a_not_validations) return $a->clips < $b->clips + $username_votes[$b->username];
+    else if ($b_not_validations) return $a->clips + $username_votes[$a->username] < $b->clips;
+    else return $a->clips + $username_votes[$a->username] < $b->clips + $username_votes[$b->username];
+});
 
 $total_clips = array_map(function ($user) use ($username_votes) {
     if (!array_key_exists($user->username, $username_votes)) return $user->clips;
@@ -77,8 +85,18 @@ $total_clips = array_map(function ($user) use ($username_votes) {
     return $user->clips + $username_votes[$user->username];
 }, $mapped);
 
-$combined = array_combine($usernames, $total_clips);
-arsort($combined);
+$usernames = array_map(function ($user) { return $user->username; }, $mapped);
+$clips = array_map(function ($user) { return $user->clips; }, $mapped);
+
+// $combined = array_combine($usernames, $total_clips);
+// arsort($combined);
+
+$recorded_clips = array_map(function ($user) use ($username_votes) {
+    if (!array_key_exists($user->username, $username_votes)) return 0;
+    if ($user->clips < 300) return 0;    // if less than 300 clips, don't count validations
+    return $username_votes[$user->username];
+}, $mapped);
+$recorded_combined = array_combine($usernames, $recorded_clips);
 
 $reduced2 = array_reduce($total_clips, function ($sum, $user) {
     return $sum + $user;
@@ -93,11 +111,15 @@ $progress = $total_hours/$next_milestone*100; // in percentage
 
 <script>
     let postfix = "<?php echo $postfix; ?>";
-    let usernames = ["<?php echo implode("\",\"", array_keys($combined)); ?>"];
-    let clips = [<?php echo implode(",", array_values($combined)); ?>];
+    let usernames = ["<?php echo implode("\",\"", $usernames); ?>"];
+    let clips = [<?php echo implode(",", $clips); ?>];
+    let validations = [<?php echo implode(",", $recorded_clips); ?>];
     let total = <?php echo $reduced2; ?>;
 
     let minutes = clips.map(function (number) {
+        return Math.round(number*<?php echo $avg_sentence_duration; ?>*60);
+    });
+    let val_mins = validations.map(function (number) {
         return Math.round(number*<?php echo $avg_sentence_duration; ?>*60);
     });
 
@@ -199,25 +221,39 @@ $progress = $total_hours/$next_milestone*100; // in percentage
     </div>
 
     <script>
+        // let mes60 = minutes.filter(mins => mins >= 60);
+        // let menys60 = minutes.filter(mins => mins < 60);
+
         // Histogram
         const ctx = document.getElementById('histogram').getContext('2d');
         const chart = new Chart(ctx, {
             type: 'horizontalBar',
             data: {
                 labels: usernames,
-                datasets: [{
-                    label: 'Minuts posats per cada membre',
-                    data: minutes,
-                    backgroundColor: '#198754',
-                }]
+                datasets: [
+                    {
+                        label: 'Minuts gravats',
+                        data: minutes,
+                        backgroundColor: '#198754',
+                    },
+                    {
+                        label: 'Mins validats (amb més de 60 minuts gravats)',
+                        data: val_mins,
+                        backgroundColor: '#ffd700',
+                    }
+                ]
             },
             options: {
                 scales: {
                     xAxes: [{
                         position: "top",
+                        stacked: true,
                         ticks: {
-                            beginAtZero: true
+                            beginAtZero: false
                         }
+                    }],
+                    yAxes: [{
+                        stacked: true
                     }]
                 },
                 maintainAspectRatio: false,
