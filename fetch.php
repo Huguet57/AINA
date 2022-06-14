@@ -36,38 +36,69 @@ function simplify($user) {
 }
 
 $url = "https://commonvoice.mozilla.org/api/v1/ca/clips/leaderboard?cursor=1";
+$url2 = "https://commonvoice.mozilla.org/api/v1/ca/clips/votes/leaderboard?cursor=1";
 
 // Takes raw data from the request
 $json = file_get_contents($url);
+$json2 = file_get_contents($url2);
 
 // Converts it into a PHP object
 $data = json_decode($json);
+$data2 = json_decode($json2);
 
 $queried = array_filter($data, function ($user) use($postfix) {
 	return ends_With($user->username, $postfix);
 });
+$queried2 = array_filter($data2, function ($user) use($postfix) {
+	return ends_With($user->username, $postfix);
+});
+
 $mapped = array_map("simplify", $queried);
 $reduced = array_reduce($mapped, function ($sum, $user) {
     return $sum + $user->clips;
 });
 
+$mapped2 = array_map("simplify", $queried2);
+
+$username_votes = [];
+foreach ($mapped2 as $key => $value) { 
+    $username_votes[$value->username] = $value->clips;
+}
+
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+$usernames = array_map(function ($user) { return $user->username; }, $mapped);
+
+$total_clips = array_map(function ($user) use ($username_votes) {
+    if (!array_key_exists($user->username, $username_votes)) return $user->clips;
+    if ($user->clips < 300) return $user->clips;    // if less than 300 clips, don't count validations
+    return $user->clips + $username_votes[$user->username];
+}, $mapped);
+
+$combined = array_combine($usernames, $total_clips);
+arsort($combined);
+
+$reduced2 = array_reduce($total_clips, function ($sum, $user) {
+    return $sum + $user;
+});
+
+$avg_sentence_duration = 10/3600; // in hours
+$next_milestone = 50; // in hours
+$total_hours = $reduced2*$avg_sentence_duration; // in hours
+$progress = $total_hours/$next_milestone*100; // in percentage
+
 ?>
 
 <script>
     let postfix = "<?php echo $postfix; ?>";
-    let json = <?php echo json_encode($mapped); ?>;
-    let total = <?php echo $reduced; ?>;
-
-    let usernames = Object.values(json).map(function (user) {
-        return user.username;
-    });
-
-    let clips = Object.values(json).map(function (user) {
-        return user.clips;
-    });
+    let usernames = ["<?php echo implode("\",\"", array_keys($combined)); ?>"];
+    let clips = [<?php echo implode(",", array_values($combined)); ?>];
+    let total = <?php echo $reduced2; ?>;
 
     let minutes = clips.map(function (number) {
-        return Math.round(number*10/60);
+        return Math.round(number*<?php echo $avg_sentence_duration; ?>*60);
     });
 
     let entropy = clips.map(function (clips) {
@@ -85,7 +116,6 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
 
     console.log(postfix);
     console.log(total);
-    console.log(json);
     console.log(clips);
     console.log(entropy);
     console.log(cumprobs);
@@ -95,14 +125,14 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
 <body>
     <div class="full-container">
         <h1>Arreplegats de la Zona Universitària (@AZU)</h1>
-        <h2>Total gravat: <strong id="total"></strong> frases</h2>
+        <h2>Total gravat: <strong id="total"><?php echo $reduced2; ?></strong> frases</h2>
         <br />
 
         <div class="progress-container" style="display:flex;">
             <div style="width: 90%;">
                 <div class="progress">
-                    <div class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" style="height: 50px; width: <?php echo $reduced*10/3600/50*100; ?>%" aria-valuenow="<?php echo $reduced*10/3600/50*100; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                    <div id="hours"></div>
+                    <div class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" style="height: 50px; width: <?php echo $progress; ?>%" aria-valuenow="<?php echo $progress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div id="hours"><?php echo round($reduced2*$avg_sentence_duration, 1); ?>h</div>
                 </div>
             </div>
             <div class="milestone">
@@ -174,12 +204,6 @@ $reduced = array_reduce($mapped, function ($sum, $user) {
                 maintainAspectRatio: false,
             }
         });
-
-        // Totals
-        let h2 = document.getElementById("total");
-        h2.innerHTML = total;
-        let hours = document.getElementById("hours");
-        hours.innerHTML = String(Math.round(total*10/60/60*10)/10) + "h";
     </script>
 </body>
 </html>
