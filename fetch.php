@@ -144,6 +144,25 @@ $progress = $total_hours/$next_milestone*100; // in percentage
         <center><a style="color: #198754;" href="https://commonvoice.mozilla.org/ca"><h2>Ves a donar la teva veu</h2></a></center>
         <br />
 
+        <h2>Sortejos</h2>
+        <div class="sorteig">
+            <h4>Col·lecció gots del Primavera Sound 2001-2019</h4>
+            <br />
+            <center><img src="./gots.jpeg" style="width: 80%;" /></center>
+            <br />
+            <p>Totes les persones <strong>amb més de 60 minuts</strong> participaran en un sorteig d'una col·lecció oficial dels gots 2001-2019 del Primavera Sound.</p>
+            <h5>Llistat de participants</h5>
+            <div class="llistat" style="display: flex; flex-wrap: wrap; justify-content: space-evenly; font-size: 11px; flex-basis: auto;">
+                <?php
+                    $chosen_users = array_filter($mapped, function ($user) { return $user->clips >= 300; });
+                    $chosen_divs = array_map(function ($user) { return '<div class="participant">'.$user->username.'</div>'; }, $chosen_users);
+                    echo implode("\n", $chosen_divs);
+                ?>
+            </div>
+            <br />
+            <div><h4 id="countdown"></h4></div>
+        </div>
+
         <h2>Objectius i recompenses</h2>    
         <div class="milestones-container" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center;">
             <div class="milestone-desc assolit noactiu">
@@ -204,6 +223,37 @@ $progress = $total_hours/$next_milestone*100; // in percentage
                 maintainAspectRatio: false,
             }
         });
+    </script>
+
+    <!-- COUNTDOWN -->
+    <script>
+    // Set the date we're counting down to
+    var countDownDate = new Date("Jun 25, 2022 15:00:00").getTime();
+
+    // Update the count down every 1 second
+    var x = setInterval(function() {
+
+    // Get today's date and time
+    var now = new Date().getTime();
+        
+    // Find the distance between now and the count down date
+    var distance = countDownDate - now;
+        
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+    // Output the result in an element with id="demo"
+    document.getElementById("countdown").innerHTML = "Queden <strong>" + days + "</strong> dies <strong>" + hours + "</strong> hores <strong>" + minutes + "</strong> minuts <strong>" + seconds + "</strong> segons";
+        
+    // If the count down is over, write some text 
+    if (distance < 0) {
+        clearInterval(x);
+        document.getElementById("countdown").innerHTML = "Ja està.";
+    }
+    }, 1000);
     </script>
 </body>
 </html>
