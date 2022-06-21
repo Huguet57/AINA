@@ -173,13 +173,13 @@ $progress = $total_hours/$next_milestone*100; // in percentage
             <center><img src="./gots.jpeg" style="width: 80%;" /></center>
             <br />
             <p>Totes les persones <strong>amb més de 60 minuts</strong> participaran en un sorteig d'una col·lecció oficial dels gots 2001-2019 del Primavera Sound.</p>
-            <h5>Llistat de participants</h5>
+            <?php
+                $chosen_users = array_filter($mapped, function ($user) { return $user->clips >= 300; });
+                $chosen_divs = array_map(function ($user) { return '<div class="participant">'.$user->username.'</div>'; }, $chosen_users);
+            ?>
+            <h5>Llistat de participants (<?php echo count($chosen_users); ?>)</h5>
             <div class="llistat" style="display: flex; flex-wrap: wrap; justify-content: space-evenly; font-size: 11px; flex-basis: auto;">
-                <?php
-                    $chosen_users = array_filter($mapped, function ($user) { return $user->clips >= 300; });
-                    $chosen_divs = array_map(function ($user) { return '<div class="participant">'.$user->username.'</div>'; }, $chosen_users);
-                    echo implode("\n", $chosen_divs);
-                ?>
+                <?php echo implode("\n", $chosen_divs); ?>
             </div>
             <br />
             <div><h4 id="countdown"></h4></div>
@@ -202,7 +202,7 @@ $progress = $total_hours/$next_milestone*100; // in percentage
                 </del>
                 <pre>Assolit al 06/06/2022</pre>
             </div>
-            <div class="milestone-desc noactiu">
+            <div class="milestone-desc">
                 <h4>50 hores gravades: WIFI</h4>    
                 <img src="./wifi.jpeg"/>
                 <p>Amb 50 persones gravant 300 frases, podríem tenir Wi-Fi a la 3A. Cuidado.</p>
@@ -264,7 +264,7 @@ $progress = $total_hours/$next_milestone*100; // in percentage
     <!-- COUNTDOWN -->
     <script>
     // Set the date we're counting down to
-    var countDownDate = new Date("Jun 25, 2022 15:00:00").getTime();
+    var countDownDate = new Date("Jun 26, 2022 15:00:00").getTime();
 
     // Update the count down every 1 second
     var x = setInterval(function() {
