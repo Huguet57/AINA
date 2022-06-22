@@ -171,26 +171,43 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
         <center><a style="color: <?php echo $metadata->{'color'}; ?>;" href="https://commonvoice.mozilla.org/ca"><h2>Ves a donar la teva veu</h2></a></center>
         <br />
 
-        <h2>Sortejos</h2>
-        <div class="sorteig">
-            <h4>Col·lecció gots del Primavera Sound 2001-2019</h4>
-            <br />
-            <center><img src="./gots.jpeg" style="width: 80%;" /></center>
-            <br />
-            <p>Totes les persones <strong>amb més de 60 minuts</strong> participaran en un sorteig d'una col·lecció oficial dels gots 2001-2019 del Primavera Sound.</p>
-            <?php
+        <?php
+            if (count($metadata->{"sortejos"}) > 0) echo "<h2>Sortejos</h2>";
+        
+            $sortejos_div = array_map(function ($sorteig) use ($mapped) {
+                $div = '<div class="sorteig">';
+                $div .= "<h4>" . $sorteig->{"titol"} . "</h4>";
+                $div .= "<br />";
+                
+                // Imatge
+                if ($sorteig->{"img"} != "") $div .= '<center><img src="./'.$sorteig->{"img"}.'" style="width: 80%;" /></center>';
+                $div .= "<br />";
+                
+                // Descripció
+                $div .= "<p>Totes les persones <strong>amb més de 60 minuts</strong> participaran en un sorteig d'una col·lecció oficial dels gots 2001-2019 del Primavera Sound.</p>";
+                
+                // Participants
                 $chosen_users = array_filter($mapped, function ($user) { return $user->clips >= 300; });
                 $chosen_divs = array_map(function ($user) { return '<div class="participant">'.$user->username.'</div>'; }, $chosen_users);
-            ?>
-            <h5>Llistat de participants (<?php echo count($chosen_users); ?>)</h5>
-            <div class="llistat" style="display: flex; flex-wrap: wrap; justify-content: space-evenly; font-size: 11px; flex-basis: auto;">
-                <?php echo implode("\n", $chosen_divs); ?>
-            </div>
-            <br />
-            <div><h4 id="countdown"></h4></div>
-        </div>
 
-        <h2>Objectius i recompenses</h2>    
+                $div .= '<h5>Llistat de participants ('. count($chosen_users).')</h5>
+                    <div class="llistat" style="display: flex; flex-wrap: wrap; justify-content: space-evenly; font-size: 11px; flex-basis: auto;">
+                        '. implode("\n", $chosen_divs).'
+                    </div>
+                    <br />
+                    <div><h4 id="countdown"></h4></div>
+                </div>';
+
+                return $div;
+            }, $metadata->{"sortejos"});
+
+            echo implode("\n", $sortejos_div);
+        ?>
+
+        <?php
+            if (count($metadata->{"recompenses"}) > 0) echo "<h2>Objectius i recompenses</h2>";
+        ?>
+
         <div class="milestones-container" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center;">
             <?php
                 $recompenses_divs = array_map(function ($recompensa) use ($total_hours) {

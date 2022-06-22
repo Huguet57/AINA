@@ -3,14 +3,14 @@
         "nom": "Indefinit",
         "abrev": "INDEFINIT",
         "color": "#198754",
-        "sorteigos": [],
+        "sortejos": [],
         "recompenses": []
     },  
     "@azu": {
         "nom": "Arreplegats de la Zona Universitària",
         "abrev": "@AZU",
         "color": "#198754",
-        "sorteigos": [
+        "sortejos": [
             {
                 "titol": "Col·lecció gots del Primavera Sound 2001-2019",
                 "img": "gots.jpeg",
@@ -52,7 +52,7 @@
         "nom": "Castellers de Sarrià",
         "abrev": "@Sarri",
         "color": "#582B36",
-        "sorteigos": [],
+        "sortejos": [],
         "recompenses": [
             {
                 "titol": "Objectiu inicial",
