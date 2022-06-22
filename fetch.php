@@ -16,7 +16,7 @@
 
 <?php
 
-$postfix = $_GET["postfix"];
+$postfix = strtolower($_GET["postfix"]);
 
 function ends_With( $haystack, $needle ) {
     $length = strlen( $needle );
@@ -35,16 +35,21 @@ function simplify($user) {
     return $x;
 }
 
-$url = "https://commonvoice.mozilla.org/api/v1/ca/clips/leaderboard?cursor=1";
-$url2 = "https://commonvoice.mozilla.org/api/v1/ca/clips/votes/leaderboard?cursor=1";
+$metadata_url = "/home/andreu/aina/colles.json";
+$gravacions_url = "https://commonvoice.mozilla.org/api/v1/ca/clips/leaderboard?cursor=1";
+$validacions_url = "https://commonvoice.mozilla.org/api/v1/ca/clips/votes/leaderboard?cursor=1";
 
 // Takes raw data from the request
-$json = file_get_contents($url);
-$json2 = file_get_contents($url2);
+$metadata_json = file_get_contents($metadata_url);
+$gravacions_json = file_get_contents($gravacions_url);
+$validacions_json = file_get_contents($validacions_url);
 
 // Converts it into a PHP object
-$data = json_decode($json);
-$data2 = json_decode($json2);
+$data = json_decode($gravacions_json);
+$data2 = json_decode($validacions_json);
+
+$metadata_all = json_decode($metadata_json);
+$metadata = isset($metadata_all->{$postfix}) ? $metadata_all->{$postfix} : $metadata_all->{"null"};
 
 $queried = array_filter($data, function ($user) use($postfix) {
 	return ends_With($user->username, $postfix);
@@ -88,9 +93,6 @@ $total_clips = array_map(function ($user) use ($username_votes) {
 $usernames = array_map(function ($user) { return $user->username; }, $mapped);
 $clips = array_map(function ($user) { return $user->clips; }, $mapped);
 
-// $combined = array_combine($usernames, $total_clips);
-// arsort($combined);
-
 $recorded_clips = array_map(function ($user) use ($username_votes) {
     if (!array_key_exists($user->username, $username_votes)) return 0;
     if ($user->clips < 300) return 0;    // if less than 300 clips, don't count validations
@@ -107,6 +109,8 @@ $next_milestone = 50; // in hours
 $total_hours = $reduced2*$avg_sentence_duration; // in hours
 $progress = $total_hours/$next_milestone*100; // in percentage
 
+$rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
+
 ?>
 
 <script>
@@ -115,6 +119,7 @@ $progress = $total_hours/$next_milestone*100; // in percentage
     let clips = [<?php echo implode(",", $clips); ?>];
     let validations = [<?php echo implode(",", $recorded_clips); ?>];
     let total = <?php echo $reduced2; ?>;
+    let total1 = <?php echo $reduced; ?>;
 
     let minutes = clips.map(function (number) {
         return Math.round(number*<?php echo $avg_sentence_duration; ?>*60);
@@ -124,7 +129,7 @@ $progress = $total_hours/$next_milestone*100; // in percentage
     });
 
     let entropy = clips.map(function (clips) {
-        let p = clips/total;
+        let p = clips/total1;
         if (p == 0) return suma;
         return - p * Math.log(p);
     }).reduce((a, b) => a + b, 0);
@@ -132,12 +137,12 @@ $progress = $total_hours/$next_milestone*100; // in percentage
     // 20% fa el 80%
     let cumsum = 0;
     let cumprobs = clips.map(function (user_clips) {
-        cumsum += user_clips/total;
+        cumsum += user_clips/total1;
         return cumsum;
     });
 
     console.log(postfix);
-    console.log(total);
+    console.log(total1);
     console.log(clips);
     console.log(entropy);
     console.log(cumprobs);
@@ -146,7 +151,7 @@ $progress = $total_hours/$next_milestone*100; // in percentage
 </head>
 <body>
     <div class="full-container">
-        <h1>Arreplegats de la Zona Universitària (@AZU)</h1>
+        <h1><?php echo $metadata->{"nom"}; ?> (<?php echo $metadata->{"abrev"}; ?>)</h1>
         <h2>Total gravat: <strong id="total"><?php echo $reduced2; ?></strong> frases</h2>
         <br />
 
@@ -154,7 +159,7 @@ $progress = $total_hours/$next_milestone*100; // in percentage
             <div style="width: 90%;">
                 <div class="progress">
                     <div class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" style="height: 50px; width: <?php echo $progress; ?>%" aria-valuenow="<?php echo $progress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                    <div id="hours"><?php echo round($reduced2*$avg_sentence_duration, 1); ?>h</div>
+                    <div id="hours"><?php echo $rounded_hours; ?>h</div>
                 </div>
             </div>
             <div class="milestone">
@@ -187,31 +192,30 @@ $progress = $total_hours/$next_milestone*100; // in percentage
 
         <h2>Objectius i recompenses</h2>    
         <div class="milestones-container" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center;">
-            <div class="milestone-desc assolit noactiu">
-                <del style="color:orange;">
-                    <h4>10 hores gravades: Objectiu inicial</h4>    
-                    <p>Amb 50 persones gravant 70 frases ja ho tenim. Mode fàcil.</p>
-                </del>
-                <pre>Assolit al 03/06/2022</pre>
-            </div>
-            <div class="milestone-desc assolit noactiu">
-                <del style="color:orange;">
-                    <h4>20 hores gravades: Biblioteca 24h</h4>    
-                    <img src="./bibliotecanocturna.png"/>
-                    <p>Transformem la 3A actual en una biblioteca nocturna a la setmana de finals. Amics també poden venir.</p>
-                </del>
-                <pre>Assolit al 06/06/2022</pre>
-            </div>
-            <div class="milestone-desc">
-                <h4>50 hores gravades: WIFI</h4>    
-                <img src="./wifi.jpeg"/>
-                <p>Amb 50 persones gravant 300 frases, podríem tenir Wi-Fi a la 3A. Cuidado.</p>
-            </div>
-            <div class="milestone-desc noactiu">
-                <h4>100 hores gravades: Piscina</h4>    
-                <img src="./piscina.jpg"/>
-                <p>Amb 100 persones gravant 300 frases, tindríem una recompensa llegendària: piscina a la nova 3A.<br /><br /> La imatge no és cap montatge. Ja ha passat abans.</p>
-            </div>
+            <?php
+                $recompenses_divs = array_map(function ($recompensa) use ($total_hours) {
+                    $div = '';
+
+                    // Mirar si està 'assolit'
+                    $assolit = $total_hours > $recompensa->{"hores"};
+                    if (!$assolit) $div .= '<div class="milestone-desc actiu">';
+                    else $div .= '<div class="milestone-desc assolit noactiu"><del>';
+                    
+                    $div .= '<h4>' . $recompensa->{"hores"} . ' hores gravades: ' . $recompensa->{"titol"} . '</h4>';
+                    
+                    // Mirar si hi ha foto
+                    if ($recompensa->{"img"} != "") $div .= '<img src="./' . $recompensa->{"img"} . '"/>';
+                    
+                    $div .= '<p>' . $recompensa->{"descripcio"} . '</p>';
+
+                    if ($assolit) $div .= '</del><pre style="opacity:1;">Assolit.</pre>';
+                    $div .= '</div>';
+
+                    return $div;
+                }, $metadata->{"recompenses"});
+
+                echo implode("\n", $recompenses_divs);
+            ?>
         </div>
 
         <h2>Aportació de cada membre</h2>
@@ -221,8 +225,13 @@ $progress = $total_hours/$next_milestone*100; // in percentage
     </div>
 
     <script>
-        // let mes60 = minutes.filter(mins => mins >= 60);
-        // let menys60 = minutes.filter(mins => mins < 60);
+        // Només deixar actiu la recompensa immediata
+        let actius = document.getElementsByClassName("actiu");
+        for (let i = 1; i < actius.length; ++i) {
+            let div = actius[i];
+            div.classList.remove("actiu");
+            div.classList.add("noactiu");
+        }
 
         // Histogram
         const ctx = document.getElementById('histogram').getContext('2d');
@@ -264,31 +273,33 @@ $progress = $total_hours/$next_milestone*100; // in percentage
     <!-- COUNTDOWN -->
     <script>
     // Set the date we're counting down to
+    var ini_countDownDate = new Date("Jun 01, 2022 15:00:00").getTime();
     var countDownDate = new Date("Jun 26, 2022 15:00:00").getTime();
 
     // Update the count down every 1 second
     var x = setInterval(function() {
+        // Get today's date and time
+        var now = new Date().getTime();
+        
+        // Find the distance between now and the count down date
+        var distance = countDownDate - now;
+            
+        // Time calculations for days, hours, minutes and seconds
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+        // Output the result in an element with id="demo"
+        if (now - ini_countDownDate > 0) {
+            document.getElementById("countdown").innerHTML = "Queden <strong>" + days + "</strong> dies <strong>" + hours + "</strong> hores <strong>" + minutes + "</strong> minuts <strong>" + seconds + "</strong> segons";
 
-    // Get today's date and time
-    var now = new Date().getTime();
-        
-    // Find the distance between now and the count down date
-    var distance = countDownDate - now;
-        
-    // Time calculations for days, hours, minutes and seconds
-    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-    // Output the result in an element with id="demo"
-    document.getElementById("countdown").innerHTML = "Queden <strong>" + days + "</strong> dies <strong>" + hours + "</strong> hores <strong>" + minutes + "</strong> minuts <strong>" + seconds + "</strong> segons";
-        
-    // If the count down is over, write some text 
-    if (distance < 0) {
-        clearInterval(x);
-        document.getElementById("countdown").innerHTML = "Ja està.";
-    }
+            // If the count down is over, write some text 
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "Ja està.";
+            }
+        }
     }, 1000);
     </script>
 </body>
