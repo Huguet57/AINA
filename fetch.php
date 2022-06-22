@@ -158,7 +158,7 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
         <div class="progress-container" style="display:flex;">
             <div style="width: 90%;">
                 <div class="progress">
-                    <div class="progress-bar progress-bar-animated progress-bar-striped bg-success" role="progressbar" style="height: 50px; width: <?php echo $progress; ?>%" aria-valuenow="<?php echo $progress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar" style="height: 50px; width: <?php echo $progress; ?>%; background-color: <?php echo $metadata->{'color'}; ?>;" aria-valuenow="<?php echo $progress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                     <div id="hours"><?php echo $rounded_hours; ?>h</div>
                 </div>
             </div>
@@ -168,7 +168,7 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
             </div>
         </div>
 
-        <center><a style="color: #198754;" href="https://commonvoice.mozilla.org/ca"><h2>Ves a donar la teva veu</h2></a></center>
+        <center><a style="color: <?php echo $metadata->{'color'}; ?>;" href="https://commonvoice.mozilla.org/ca"><h2>Ves a donar la teva veu</h2></a></center>
         <br />
 
         <h2>Sortejos</h2>
@@ -243,7 +243,7 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
                     {
                         label: 'Minuts gravats',
                         data: minutes,
-                        backgroundColor: '#198754',
+                        backgroundColor: '<?php echo $metadata->{'color'}; ?>',
                     },
                     {
                         label: 'Mins validats (amb més de 60 minuts gravats)',
