@@ -35,6 +35,15 @@ function simplify($user) {
     return $x;
 }
 
+function array_find(array $a, callable $fn) {
+    foreach ($a as $key => $value) {
+        if ($fn($value, $key, $a)) {
+            return $value;
+        }
+    }
+    return false;
+}
+
 $metadata_url = "/home/andreu/aina/colles.json";
 $gravacions_url = "https://commonvoice.mozilla.org/api/v1/ca/clips/leaderboard?cursor=1";
 $validacions_url = "https://commonvoice.mozilla.org/api/v1/ca/clips/votes/leaderboard?cursor=1";
@@ -104,12 +113,20 @@ $reduced2 = array_reduce($total_clips, function ($sum, $user) {
     return $sum + $user;
 });
 
-$avg_sentence_duration = 10/3600; // in hours
-$next_milestone = 50; // in hours
-$total_hours = $reduced2*$avg_sentence_duration; // in hours
-$progress = $total_hours/$next_milestone*100; // in percentage
+$milestones = array_map(function ($milestone) {
+    return $milestone->{"hores"};
+}, $metadata->{"recompenses"});
 
-$rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
+$avg_sentence_duration = 10/3600; // in hours
+$total_hours = $reduced2*$avg_sentence_duration; // in hours
+$rounded_hours = round($total_hours, 1); // total hours
+
+$next_milestone = array_find($milestones, function($value) use ($total_hours) {
+    return $value >= $total_hours;
+});
+if (!$next_milestone && end($milestones) + 1 > $total_hours) $next_milestone = end($milestones); // for victory pictures
+else if (!$next_milestone) $next_milestone = ceil($total_hours/25)*25; // if there's no milestone, go in 25s
+$progress = $total_hours/$next_milestone*100; // in percentage
 
 ?>
 
@@ -162,9 +179,12 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
                     <div id="hours"><?php echo $rounded_hours; ?>h</div>
                 </div>
             </div>
+            
             <div class="milestone">
-                <div class="hores">50h</div>
-                <div class="frases">18000</div>
+                <?php if ($next_milestone): ?>
+                    <div class="hores"><?php echo $next_milestone; ?>h</div>
+                    <div class="frases"><?php echo $next_milestone/$avg_sentence_duration; ?></div>
+                <?php endif; ?>
             </div>
         </div>
 
