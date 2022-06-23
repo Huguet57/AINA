@@ -191,13 +191,17 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
                 $chosen_users = array_filter($mapped, function ($user) use ($clip_milestone) { return $user->clips >= $clip_milestone; });
                 $chosen_divs = array_map(function ($user) { return '<div class="participant">'.$user->username.'</div>'; }, $chosen_users);
 
-                $div .= '<h5>Llistat de participants ('. count($chosen_users).')</h5>
-                    <div class="llistat" style="display: flex; flex-wrap: wrap; justify-content: space-evenly; font-size: 11px; flex-basis: auto;">
-                        '. implode("\n", $chosen_divs).'
-                    </div>
-                    <br />
-                    <div><h4 id="countdown_'.$sorteig->{"objectiu-minuts"}.'"></h4></div>
-                </div>';
+                if (count($chosen_users) > 0) {
+                    $div .= '<h5>Llistat de participants ('. count($chosen_users).')</h5>
+                        <div class="llistat" style="display: flex; flex-wrap: wrap; justify-content: space-evenly; font-size: 11px; flex-basis: auto;">
+                            '. implode("\n", $chosen_divs).'
+                        </div>';
+                } else {
+                    $div .= '<h5>Encara no hi ha participants.</h5>';
+                }
+                
+                // Countdown
+                $div .= '<br /><div><h4 id="countdown_'.$sorteig->{"objectiu-minuts"}.'"></h4></div></div>';
 
                 return $div;
             }, $metadata->{"sortejos"});
