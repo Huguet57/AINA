@@ -75,8 +75,8 @@ ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
 uasort($mapped, function ($a, $b) use ($username_votes) {
-    $a_not_validations = !array_key_exists($a->username, $username_votes) || $a->clips < 300;
-    $b_not_validations = !array_key_exists($b->username, $username_votes) || $b->clips < 300;
+    $a_not_validations = !array_key_exists($a->username, $username_votes) || $a->clips < 360;
+    $b_not_validations = !array_key_exists($b->username, $username_votes) || $b->clips < 360;
 
     if ($a_not_validations && $b_not_validations) return $a->clips < $b->clips;
     else if ($a_not_validations) return $a->clips < $b->clips + $username_votes[$b->username];
@@ -86,7 +86,7 @@ uasort($mapped, function ($a, $b) use ($username_votes) {
 
 $total_clips = array_map(function ($user) use ($username_votes) {
     if (!array_key_exists($user->username, $username_votes)) return $user->clips;
-    if ($user->clips < 300) return $user->clips;    // if less than 300 clips, don't count validations
+    if ($user->clips < 360) return $user->clips;    // if less than 360 clips, don't count validations
     return $user->clips + $username_votes[$user->username];
 }, $mapped);
 
@@ -95,7 +95,7 @@ $clips = array_map(function ($user) { return $user->clips; }, $mapped);
 
 $recorded_clips = array_map(function ($user) use ($username_votes) {
     if (!array_key_exists($user->username, $username_votes)) return 0;
-    if ($user->clips < 300) return 0;    // if less than 300 clips, don't count validations
+    if ($user->clips < 360) return 0;    // if less than 360 clips, don't count validations
     return $username_votes[$user->username];
 }, $mapped);
 $recorded_combined = array_combine($usernames, $recorded_clips);
@@ -174,8 +174,8 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
         <?php
             if (count($metadata->{"sortejos"}) > 0) echo "<h2>Sortejos</h2>";
         
-            $sortejos_div = array_map(function ($sorteig) use ($mapped) {
-                $div = '<div class="sorteig">';
+            $sortejos_div = array_map(function ($sorteig) use ($mapped, $avg_sentence_duration) {
+                $div = '<div class="sorteig" id="sorteig_'.$sorteig->{"objectiu-minuts"}.'" style="display:none;">';
                 $div .= "<h4>" . $sorteig->{"titol"} . "</h4>";
                 $div .= "<br />";
                 
@@ -184,10 +184,11 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
                 $div .= "<br />";
                 
                 // Descripció
-                $div .= "<p>Totes les persones <strong>amb més de 60 minuts</strong> participaran en un sorteig d'una col·lecció oficial dels gots 2001-2019 del Primavera Sound.</p>";
+                $div .= "<p>".$sorteig->{"descripcio"}."</p>";
                 
                 // Participants
-                $chosen_users = array_filter($mapped, function ($user) { return $user->clips >= 300; });
+                $clip_milestone = $sorteig->{"objectiu-minuts"}/60/$avg_sentence_duration;
+                $chosen_users = array_filter($mapped, function ($user) use ($clip_milestone) { return $user->clips >= $clip_milestone; });
                 $chosen_divs = array_map(function ($user) { return '<div class="participant">'.$user->username.'</div>'; }, $chosen_users);
 
                 $div .= '<h5>Llistat de participants ('. count($chosen_users).')</h5>
@@ -195,7 +196,7 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
                         '. implode("\n", $chosen_divs).'
                     </div>
                     <br />
-                    <div><h4 id="countdown"></h4></div>
+                    <div><h4 id="countdown_'.$sorteig->{"objectiu-minuts"}.'"></h4></div>
                 </div>';
 
                 return $div;
@@ -289,35 +290,60 @@ $rounded_hours = round($reduced2*$avg_sentence_duration, 1); // total hours
 
     <!-- COUNTDOWN -->
     <script>
-    // Set the date we're counting down to
-    var ini_countDownDate = new Date("Jun 01, 2022 15:00:00").getTime();
-    var countDownDate = new Date("Jun 26, 2022 15:00:00").getTime();
+        <?php
+            $countdowns_scripts = array_map(function ($sorteig) {
+                $minutes = $sorteig->{"objectiu-minuts"};
+                
+                $script = '// Set the date we are counting down to
+                var ini_countDownDate_'.$minutes.' = new Date("'.$sorteig->{"data-inici"}.'").getTime();
+                var countDownDate_'.$minutes.' = new Date("'.$sorteig->{"data-fi"}.'").getTime();';
 
-    // Update the count down every 1 second
-    var x = setInterval(function() {
-        // Get today's date and time
-        var now = new Date().getTime();
-        
-        // Find the distance between now and the count down date
-        var distance = countDownDate - now;
-            
-        // Time calculations for days, hours, minutes and seconds
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
-        // Output the result in an element with id="demo"
-        if (now - ini_countDownDate > 0) {
-            document.getElementById("countdown").innerHTML = "Queden <strong>" + days + "</strong> dies <strong>" + hours + "</strong> hores <strong>" + minutes + "</strong> minuts <strong>" + seconds + "</strong> segons";
+                $script .= '
+                // Update the count down every 1 second
+                var x = setInterval(function() {
+                    // Get today\'s date and time
+                    var now = new Date().getTime();
+                    var from = ini_countDownDate_'.$minutes.';
+                    var to = countDownDate_'.$minutes.';
+                    var id_countdown = "countdown_'.$minutes.'";
+                    var id_sorteig = "sorteig_'.$minutes.'";
 
-            // If the count down is over, write some text 
-            if (distance < 0) {
-                clearInterval(x);
-                document.getElementById("countdown").innerHTML = "Ja està.";
-            }
-        }
-    }, 1000);
+                    // Find the distance between now and the count down date
+                    var distance = to - now;
+                        
+                    // Time calculations for days, hours, minutes and seconds
+                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                        
+                    if (now - from > 0) {
+                        document.getElementById(id_countdown).innerHTML = "Queden <strong>" + days + "</strong> dies <strong>" + hours + "</strong> hores <strong>" + minutes + "</strong> minuts <strong>" + seconds + "</strong> segons";
+
+                        // If the count down is over, write some text 
+                        if (distance < 0) {
+                            clearInterval(x);
+                            document.getElementById(id_countdown).innerHTML = "Ja està.";
+                        }
+                    } else {
+                        // Afegeix no actiu
+                        document.getElementById(id_sorteig).classList.add("noactiu");
+
+                        // Format date
+                        let options = { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" };
+                        let data = (new Date(from)).toLocaleDateString("ca-ES", options);
+                        document.getElementById(id_sorteig).innerHTML = "[<strong>Nou sorteig</strong>] Començarà " + data + ".";
+                    }
+
+                    document.getElementById(id_sorteig).style.display = "block";
+                }, 1000);
+                ';
+
+                return $script;
+            }, $metadata->{"sortejos"});
+
+            echo implode("\n", $countdowns_scripts);
+        ?>
     </script>
 </body>
 </html>
